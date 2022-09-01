@@ -576,6 +576,7 @@ workflows:
       - check-go-mod-tidy:
           requires:
             - configure-multirepo
+            - setup-mattermost-webapp
       - check-golangci-lint:
           filters:
             branches:
@@ -584,33 +585,41 @@ workflows:
                 - /^release-.*/
           requires:
             - configure-multirepo
+            - setup-mattermost-webapp
       - check-app-layers:
           requires:
             - configure-multirepo
+            - setup-mattermost-webapp
       - check-store-layers:
           requires:
             - configure-multirepo
+            - setup-mattermost-webapp
       - check-mocks:
           requires:
             - configure-multirepo
+            - setup-mattermost-webapp
       - check-email-templates:
           requires:
             - configure-multirepo
+            - setup-mattermost-webapp
       - check-gen-serialized:
           requires:
             - configure-multirepo
+            - setup-mattermost-webapp
       - check-mattermost-vet:
           requires:
             - configure-multirepo
+            - setup-mattermost-webapp
       - check-migrations:
           requires:
             - configure-multirepo
+            - setup-mattermost-webapp
       - build-api-spec:
           requires:
             - configure-multirepo
+            - setup-mattermost-webapp
       - build-mattermost-server:
           requires:
-            - setup-mattermost-webapp
             - check-go-mod-tidy
             - check-app-layers
             - check-store-layers
