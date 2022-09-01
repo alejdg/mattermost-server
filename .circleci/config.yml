@@ -18,7 +18,7 @@ jobs:
     working_directory: /mnt/ramdisk/mattermost-server
     docker:
       - image: cimg/base:2022.08-22.04@sha256:e0f5468bdadedc53d6387079f3df569fc1503447cd411fe47e5b7e2c7dea958e
-    resource_class: medium
+    resource_class: large
     steps:
       - checkout
       - run: rm -rf .git
@@ -30,7 +30,7 @@ jobs:
     working_directory: /mnt/ramdisk/mattermost-webapp
     docker:
       - image: mattermost/mattermost-build-webapp:20220802_node-16.10.0@sha256:3272aa759f10c2ef1719ed08cc82ddb07224bec5be86f09800c72f5e2a623c3d
-    resource_class: medium
+    resource_class: xlarge
     steps:
       - run: |
           cd ../
@@ -56,7 +56,7 @@ jobs:
           else
             npm ci && make build
           fi
-          rem -rf .git
+          rm -rf .git
           cd -
       - persist_to_workspace:
           root: /mnt/ramdisk
@@ -66,7 +66,7 @@ jobs:
     working_directory: /mnt/ramdisk/focalboard
     docker:
       - image: cimg/base:2022.08-22.04@sha256:e0f5468bdadedc53d6387079f3df569fc1503447cd411fe47e5b7e2c7dea958e
-    resource_class: medium
+    resource_class: large
     steps:
       - run: |
           cd ../
