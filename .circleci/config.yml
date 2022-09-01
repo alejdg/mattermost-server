@@ -78,6 +78,24 @@ jobs:
           root: /mnt/ramdisk
           paths:
             - focalboard
+  configure-multirepo:
+    docker:
+      - image: mattermost/mattermost-build-server:20220415_golang-1.18.1
+    working_directory: /mnt/ramdisk
+    steps:
+      - attach_workspace:
+          at: /mnt/ramdisk/
+      - run:
+          command: |
+            cd mattermost-server
+            make setup-go-work
+            cd ../focalboard
+            EXCLUDE_ENTERPRISE=TRUE make templates-archive
+      - persist_to_workspace:
+          root: /mnt/ramdisk
+          paths:
+            - mattermost-server
+            - focalboard
   check-deps:
     parameters:
       cve_data_directory:
@@ -330,26 +348,6 @@ jobs:
           command: |
             cd focalboard
             make server-linux
-  configure-multirepo:
-    docker:
-      - image: mattermost/mattermost-build-server:20220415_golang-1.18.1
-    working_directory: ~/mattermost
-    steps:
-      - attach_workspace:
-          at: ~/mattermost/
-      - run:
-          command: |
-            cd mattermost-server
-            make setup-go-work
-            cd ../focalboard
-            EXCLUDE_ENTERPRISE=TRUE make templates-archive
-      - persist_to_workspace:
-          root: ~/mattermost
-          paths:
-            - mattermost-server
-            - mattermost-webapp
-            - focalboard
-
   test:
     executor:
       name: ubuntu
@@ -565,7 +563,6 @@ workflows:
       - configure-multirepo:
          requires:
             - setup-mattermost-server
-            - setup-mattermost-webapp
             - setup-focalboard
       # Disabling check-deps since the new version is not on bintray and all builds will fail
       # we've are on top of this, and it's going to be temporary.
@@ -613,6 +610,7 @@ workflows:
             - configure-multirepo
       - build-mattermost-server:
           requires:
+            - setup-mattermost-webapp
             - check-go-mod-tidy
             - check-app-layers
             - check-store-layers
@@ -625,26 +623,15 @@ workflows:
             - build-api-spec
       - build-focalboard:
           requires:
-            - check-go-mod-tidy
-            - check-app-layers
-            - check-store-layers
-            - check-mocks
-            - check-email-templates
-            - check-gen-serialized
-            - check-mattermost-vet
-            - check-golangci-lint
-            - check-migrations
-            - build-api-spec
+            - configure-multirepo
       - upload-s3-sha:
           context: mattermost-ci-pr-builds-s3
           requires:
             - build-mattermost-server
-            - build-focalboard
       - upload-s3:
           context: mattermost-ci-pr-builds-s3
           requires:
             - build-mattermost-server
-            - build-focalboard
       - build-docker:
           context: matterbuild-docker
           requires:
